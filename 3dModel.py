@@ -5,7 +5,40 @@ from OpenGL.GLU import *
 import numpy as np
 import math
 
-vertices = (
+vertices = [
+    # Front Face
+    [0.5, -0.5, 0.5],
+    [0.5, 0.5, 0.5],
+    [-0.5, 0.5, 0.5],
+    [-0.5, -0.5, 0.5],
+    # Back Face
+    [0.5, -0.5, -0.5],
+    [0.5, 0.5, -0.5],
+    [-0.5, 0.5, -0.5],
+    [-0.5, -0.5, -0.5],
+    # Left Face
+    [-0.5, -0.5, 0.5],
+    [-0.5, 0.5, 0.5],
+    [-0.5, 0.5, -0.5],
+    [-0.5, -0.5, -0.5],
+    # Right Face
+    [0.5, -0.5, 0.5],
+    [0.5, 0.5, 0.5],
+    [0.5, 0.5, -0.5],
+    [0.5, -0.5, -0.5],
+    # Top Face
+    [0.5, 0.5, 0.5],
+    [0.5, 0.5, -0.5],
+    [-0.5, 0.5, -0.5],
+    [-0.5, 0.5, 0.5],
+    # Bottom Face
+    [0.5, -0.5, 0.5],
+    [0.5, -0.5, -0.5],
+    [-0.5, -0.5, -0.5],
+    [-0.5, -0.5, 0.5],
+]
+
+vertice = [
     (-0.5, -0.5, 0.5),
     (0.5, -0.5, 0.5),
     (0.5, 0.5, 0.5),
@@ -14,25 +47,35 @@ vertices = (
     (0.5, -0.5, -0.5),
     (0.5, 0.5, -0.5),
     (-0.5, 0.5, -0.5)
-)
-
-COLOR_RED = [1, 0, 0]
-COLOR_GREEN = [0, 1, 0]
-COLOR_BLUE = [0, 0, 1]
-COLOR_YELLOW = [1, 1, 0]
-COLOR_PURPLE = [1, 0, 1]
-COLOR_CYAN = [0, 1, 1]
-
-color_array = [
-    [[COLOR_RED, COLOR_RED], [COLOR_RED, COLOR_RED]],
-    [[COLOR_GREEN, COLOR_GREEN], [COLOR_GREEN, COLOR_GREEN]],
-    [[COLOR_BLUE, COLOR_BLUE], [COLOR_BLUE, COLOR_BLUE]],
-    [[COLOR_YELLOW, COLOR_YELLOW], [COLOR_YELLOW, COLOR_YELLOW]],
-    [[COLOR_PURPLE, COLOR_PURPLE], [COLOR_PURPLE, COLOR_PURPLE]],
-    [[COLOR_CYAN, COLOR_CYAN], [COLOR_CYAN, COLOR_CYAN]],
 ]
 
-edges = (
+edge = [
+    (0, 1),
+    (1, 2),
+    (2, 3),
+    (3, 0),
+    (0, 4),
+    (1, 5),
+    (2, 6),
+    (3, 7),
+    (4, 5),
+    (5, 6),
+    (6, 7),
+    (7, 4)
+]
+
+edges = [
+    (0, 1, 2, 3),    # Front Face
+    (4, 5, 6, 7),    # Back Face
+    (8, 9, 10, 11),  # Left Face
+    (12, 13, 14, 15),  # Right Face
+    (16, 17, 18, 19),  # Top Face
+    (20, 21, 22, 23),  # Bottom Face
+]
+
+
+
+edge = (
     (0, 1),
     (1, 2),
     (2, 3),
@@ -52,13 +95,28 @@ class SmallCube:
         self.position = position
         self.colors = colors
 
-    def draw(self):
+    def draw_cube(self):
+        glPushMatrix()
+        glTranslatef(self.position[0], self.position[1], self.position[2])
+        for i in range(6):
+            glBegin(GL_QUADS)
+            for vertex in edges[i]:
+                glColor3fv(self.colors[i])
+                #glColor3f(1,1,1)
+                glVertex3fv(vertices[vertex])
+            glEnd()
+        glPopMatrix()
+
+    def draw_border(self):
         glPushMatrix()
         glTranslatef(self.position[0], self.position[1], self.position[2])
         for i in range(12):
+            #glEnable(GL_LINE_SMOOTH)  # Enable line antialiasing
+            glLineWidth(5.0)
             glBegin(GL_LINES)
-            for vertex in edges[i]:
-                glVertex3fv(vertices[vertex])
+            for vertex in edge[i]:
+                glColor3f(0,0,0)
+                glVertex3fv(vertice[vertex])
             glEnd()
         glPopMatrix()
 
@@ -66,9 +124,10 @@ pygame.init()
 display = (800, 600)
 pygame.display.set_mode(display, DOUBLEBUF | OPENGL)
 
-gluPerspective(115, (display[0] / display[1]), 0.1, 50.0)
+glEnable(GL_DEPTH_TEST)
+gluPerspective(45, (display[0] / display[1]), 0.1, 50.0)
 
-glTranslatef(0.0, 0.0, -5)
+glTranslatef(0.0, 0.0, -15)
 
 rotation_enabled = False
 rotation_start = (0, 0)
@@ -78,9 +137,10 @@ def draw_cube():
         for y in range(-1, 2):
             for z in range(-1, 2):
                 position = [x, y, z]
-                colors=[]
+                colors = [(0,1,0), (0,0,1), (1,0.5,0), (1,0,0), (1,1,1), (1,1,0)]
                 cube = SmallCube(position, colors)
-                cube.draw()
+                cube.draw_cube()
+                cube.draw_border()
 
 while True:
         for event in pygame.event.get():
