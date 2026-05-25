@@ -1,0 +1,5 @@
+# TensorFlow wheels are not available for Python 3.13 on Windows yet.
+# Use Python 3.11 or 3.12 for training.
+-r requirements.txt
+numpy==2.0.2
+tensorflow==2.18.0
